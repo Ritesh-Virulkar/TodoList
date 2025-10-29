@@ -8,23 +8,26 @@
 import SwiftUI
 
 struct AllTodos: View {
-    @State private var allTodos = [Todo]()
+    @Environment(TodoViewModel.self) var todoVM
     
     var body: some View {
         NavigationStack {
             List {
-                ForEach(allTodos, id: \.id) { todo in // all todos
-                    NavigationLink {
-                        // view todo
-                        Text("\(todo.title)")
-                    } label: {
-                        Text("\(todo.title)")
+                ForEach(todoVM.todos, id: \.id) { todo in
+                    HStack {
+                        Text(todo.title)
+                        Spacer()
+                        Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
+                            .onTapGesture {
+                                todoVM.toggleStatus(todo.id)
+                            }
+                            .symbolEffect(.bounce, value: todo.isCompleted)
+                            
                     }
                     .swipeActions {
                         Button("Delete", systemImage: "trash", role: .destructive) {
-                            // delete
+                            todoVM.remove(todo.id)
                         }
-                        
                         Button("Edit", systemImage: "pencil") {
                             // edit
                         }
@@ -34,9 +37,7 @@ struct AllTodos: View {
             .navigationTitle("Todos")
             .toolbar {
                 NavigationLink {
-                    AddTodo() { task in
-                        allTodos.append(task)
-                    }
+                    AddTodo() 
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -47,4 +48,5 @@ struct AllTodos: View {
 
 #Preview {
     AllTodos()
+        .environment(TodoViewModel())
 }

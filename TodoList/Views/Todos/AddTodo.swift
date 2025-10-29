@@ -9,11 +9,16 @@ import SwiftUI
 
 struct AddTodo: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(TodoViewModel.self) var todoVM
     
     @State private var title: String = ""
     @State private var dueDate: Date = .now
     
-    let onSave: (Todo) -> Void
+    // errors
+    @State private var showingError = false
+    @State private var errorTitle = ""
+    @State private var errorMessage = ""
+//    let onSave: (Todo) -> Void
     
     var body: some View {
         ScrollView {
@@ -26,23 +31,33 @@ struct AddTodo: View {
                 .padding()
             
             Button {
-                // add
-                let newTask = Todo(id: UUID(), title: title, dueDate: dueDate)
-                onSave(newTask)
-                dismiss()
+                if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    showingError = true
+                    errorTitle = "Empty title"
+                    errorMessage = "Title cannot be empty"
+                } else {
+                    let newTodo = Todo(id: UUID(), title: title, isCompleted: false, dueDate: dueDate)
+                    todoVM.add(newTodo)
+                    dismiss()
+                }
             } label: {
                 Text("Add task")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .padding()
-            
             .navigationTitle("New Item")
             .navigationBarTitleDisplayMode(.inline)
+            .alert(errorTitle, isPresented: $showingError) {
+                Button("OK") {}
+            } message: {
+                Text(errorMessage)
+            }
         }
     }
 }
 
 #Preview {
-    AddTodo() { _ in }
+    AddTodo()
+        .environment(TodoViewModel())
 }

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var todoVM = TodoViewModel()
+    
     var body: some View {
         TabView {
             AllTodos()
@@ -20,6 +22,7 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gear.circle")
                 }
         }
+        .environment(todoVM)
     }
 }
 
