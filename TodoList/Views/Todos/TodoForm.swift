@@ -12,7 +12,7 @@ enum FormType {
     case edit(Todo)
 }
 
-struct AddTodo: View {
+struct TodoForm: View {
     @Environment(\.dismiss) var dismiss
     @Environment(TodoViewModel.self) var todoVM
     
@@ -28,14 +28,28 @@ struct AddTodo: View {
     @State private var errorMessage = ""
 //    let onSave: (Todo) -> Void
     
+    // local vars
+    var _formType: FormType = .add
+    var navTitle = ""
+    var operationType: String {
+        switch _formType {
+            case .add:
+                return "Add"
+            case .edit:
+                return "Update"
+        }
+    }
     
     init(formType: FormType = .add) {
+        _formType = formType
         switch formType {
             case .add:
-            break
+            navTitle = "Add new todo"
         case .edit(let todo):
             _title = State(initialValue: todo.title)
             _dueDate = State(initialValue: todo.dueDate)
+            
+            navTitle = "Update todo"
         }
     }
     
@@ -60,17 +74,24 @@ struct AddTodo: View {
                     errorTitle = "Empty title"
                     errorMessage = "Title cannot be empty"
                 } else {
-                    let newTodo = Todo(id: UUID(), title: title, dueDate: dueDate)
-                    todoVM.add(newTodo)
+                    switch _formType {
+                        case .add:
+                            let newTodo = Todo(id: UUID(), title: title, dueDate: dueDate)
+                            todoVM.add(newTodo)
+                        case .edit(let todo):
+                            let todo = Todo(id: todo.id, title: title, dueDate: dueDate)
+                            todoVM.update(with: todo)
+                    }
+                    
                     dismiss()
                 }
             } label: {
-                Text("Add task")
+                Text("\(operationType) task")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .padding()
-            .navigationTitle("New Item")
+            .navigationTitle(navTitle)
             .navigationBarTitleDisplayMode(.inline)
             .alert(errorTitle, isPresented: $showingError) {
                 Button("OK") {}
@@ -82,6 +103,6 @@ struct AddTodo: View {
 }
 
 #Preview {
-    AddTodo()
+    TodoForm()
         .environment(TodoViewModel())
 }

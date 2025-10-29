@@ -30,7 +30,7 @@ struct AllTodos: View {
                         }
                         
                         NavigationLink {
-                            AddTodo(formType: .edit(todo))
+                            TodoForm(formType: .edit(todo))
                         } label: {
                             Label("Edit", systemImage: "pencil")
                         }
@@ -41,7 +41,7 @@ struct AllTodos: View {
             .navigationTitle("Todos")
             .toolbar {
                 NavigationLink {
-                    AddTodo() 
+                    TodoForm(formType: .add)
                 } label: {
                     Image(systemName: "plus")
                 }

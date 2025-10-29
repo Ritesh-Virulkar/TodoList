@@ -21,6 +21,12 @@ class TodoViewModel {
         }
     }
     
+    func update(with todo: Todo) {
+        if let index = todos.firstIndex (where: { $0.id == todo.id }) {
+            todos[index] = todo
+        }
+    }
+    
     func toggleStatus(_ id: UUID) {
         if let index = todos.firstIndex (where: { $0.id == id }) {
             todos[index].isCompleted.toggle()
