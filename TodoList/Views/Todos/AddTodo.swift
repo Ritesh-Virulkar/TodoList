@@ -7,10 +7,18 @@
 
 import SwiftUI
 
+enum FormType {
+    case add
+    case edit(Todo)
+}
+
 struct AddTodo: View {
     @Environment(\.dismiss) var dismiss
     @Environment(TodoViewModel.self) var todoVM
     
+    @FocusState private var isFocused: Bool
+    
+    // form properties
     @State private var title: String = ""
     @State private var dueDate: Date = .now
     
@@ -20,12 +28,28 @@ struct AddTodo: View {
     @State private var errorMessage = ""
 //    let onSave: (Todo) -> Void
     
+    
+    init(formType: FormType = .add) {
+        switch formType {
+            case .add:
+            break
+        case .edit(let todo):
+            _title = State(initialValue: todo.title)
+            _dueDate = State(initialValue: todo.dueDate)
+        }
+    }
+    
     var body: some View {
         ScrollView {
             
             TextField("Enter a new task", text: $title)
                 .padding(.horizontal)
                 .padding(.top)
+                .focused($isFocused)
+                .onAppear {
+                    isFocused = true
+                }
+            
             DatePicker("Choose due date", selection: $dueDate)
                 .datePickerStyle(.graphical)
                 .padding()
@@ -36,7 +60,7 @@ struct AddTodo: View {
                     errorTitle = "Empty title"
                     errorMessage = "Title cannot be empty"
                 } else {
-                    let newTodo = Todo(id: UUID(), title: title, isCompleted: false, dueDate: dueDate)
+                    let newTodo = Todo(id: UUID(), title: title, dueDate: dueDate)
                     todoVM.add(newTodo)
                     dismiss()
                 }

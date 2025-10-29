@@ -12,7 +12,7 @@ struct ContentView: View {
     
     var body: some View {
         TabView {
-            AllTodos()
+            AllTodos(todoVM: todoVM)
                 .tabItem {
                     Label("Todos", systemImage: "figure.run.circle")
                 }

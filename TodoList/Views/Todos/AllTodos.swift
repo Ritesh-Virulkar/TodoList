@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AllTodos: View {
-    @Environment(TodoViewModel.self) var todoVM
+    @Bindable var todoVM: TodoViewModel
     
     var body: some View {
         NavigationStack {
@@ -21,16 +21,20 @@ struct AllTodos: View {
                             .onTapGesture {
                                 todoVM.toggleStatus(todo.id)
                             }
-                            .symbolEffect(.bounce, value: todo.isCompleted)
+                            .symbolEffect(.wiggle, value: todo.isCompleted)
                             
                     }
                     .swipeActions {
                         Button("Delete", systemImage: "trash", role: .destructive) {
                             todoVM.remove(todo.id)
                         }
-                        Button("Edit", systemImage: "pencil") {
-                            // edit
+                        
+                        NavigationLink {
+                            AddTodo(formType: .edit(todo))
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
                         }
+                        .tint(.orange)
                     }
                 }
             }
@@ -47,6 +51,5 @@ struct AllTodos: View {
 }
 
 #Preview {
-    AllTodos()
-        .environment(TodoViewModel())
+    AllTodos(todoVM: TodoViewModel())
 }

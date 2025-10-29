@@ -10,8 +10,8 @@ import Foundation
 struct Todo: Identifiable, Equatable {
     var id: UUID
     var title: String
-    var isCompleted: Bool
     var dueDate: Date
+    var isCompleted = false
     
     static func ==(lhs: Todo, rhs: Todo) -> Bool {
         lhs.id == rhs.id
