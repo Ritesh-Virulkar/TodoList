@@ -20,7 +20,12 @@ struct TodoForm: View {
     
     // form properties
     @State private var title: String = ""
-    @State private var dueDate: Date = .now
+    @State private var dueDate: Date = Calendar.current.date(
+        bySettingHour: 23,
+        minute: 59,
+        second: 59,
+        of: Date()
+    )!
     
     // errors
     @State private var showingError = false
@@ -57,15 +62,15 @@ struct TodoForm: View {
         ScrollView {
             
             TextField("Enter a new task", text: $title)
+                .padding()
+                .background(Color.secondary.opacity(0.2), in: RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal)
-                .padding(.top)
                 .focused($isFocused)
-                .onAppear {
-                    isFocused = true
-                }
+                .onAppear { isFocused = true }
             
             DatePicker("Choose due date", selection: $dueDate)
                 .datePickerStyle(.graphical)
+                .tint(Color.pink.opacity(0.8))
                 .padding()
             
             Button {
@@ -87,10 +92,12 @@ struct TodoForm: View {
                 }
             } label: {
                 Text("\(operationType) task")
-                    .frame(maxWidth: .infinity)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.pink.opacity(0.8), in: RoundedRectangle(cornerRadius: 10))
+                .padding(.horizontal)
             }
-            .buttonStyle(.borderedProminent)
-            .padding()
+            .buttonStyle(.plain)
             .navigationTitle(navTitle)
             .navigationBarTitleDisplayMode(.inline)
             .alert(errorTitle, isPresented: $showingError) {
