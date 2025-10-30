@@ -9,7 +9,22 @@ import Foundation
 
 @Observable
 class TodoViewModel {
-    var todos = [Todo]() 
+    var todos = [Todo]() {
+        didSet {
+            if let encoded = try? JSONEncoder().encode(todos) {
+                UserDefaults.standard.set(encoded, forKey: "todoListApp-todos")
+            }
+        }
+    }
+    
+    // MARK: Init
+    init() {
+        if let data = UserDefaults.standard.data(forKey: "todoListApp-todos"), let decoded = try? JSONDecoder().decode([Todo].self, from: data) {
+            todos = decoded
+            return
+        }
+        todos = []
+    }
     
     func add(_ todo: Todo) {
         todos.append(todo)

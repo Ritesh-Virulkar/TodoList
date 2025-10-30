@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Todo: Identifiable, Equatable {
+struct Todo: Codable, Identifiable, Equatable {
     var id: UUID
     var title: String
     var dueDate: Date

@@ -16,6 +16,10 @@ struct AllTodos: View {
                 ForEach(todoVM.todos, id: \.id) { todo in
                     HStack {
                         Text(todo.title)
+                            .foregroundStyle(todo.isCompleted ? .secondary : .primary)
+                            .strikethrough(todo.isCompleted)
+                            .animation(.linear, value: todo.isCompleted)
+                        
                         Spacer()
                         Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
                             .onTapGesture {
