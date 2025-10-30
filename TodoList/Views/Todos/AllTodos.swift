@@ -89,8 +89,9 @@ struct AllTodos: View {
         todoVM.todos.move(fromOffsets: indices, toOffset: newOffset)
     }
     
+    // TODO: check why it doesnt work
     private func remove(for offsets: IndexSet) {
-        todoVM.todos.remove(atOffsets: offsets)
+        todoVM.remove(at: offsets)
     }
     
     private func formattedDate(_ date: Date) -> String {
