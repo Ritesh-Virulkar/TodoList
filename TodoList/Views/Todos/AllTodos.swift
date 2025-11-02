@@ -63,14 +63,12 @@ struct AllTodos: View {
                                         .fontWeight(.regular)
                                         .foregroundStyle(todo.isCompleted ? .secondary : .primary)
                                         .strikethrough(todo.isCompleted)
-                                        .animation(.linear, value: todo.isCompleted)
                                     
                                     Text(formattedDate(todo.dueDate))
                                         .font(.caption)
                                         .fontWeight(.light)
                                         .foregroundStyle(todo.isCompleted ? .secondary : .primary)
                                         .strikethrough(todo.isCompleted)
-                                        .animation(.linear, value: todo.isCompleted)
                                 }
                                 
                                 Spacer()
@@ -117,6 +115,12 @@ struct AllTodos: View {
                     TodoForm(formType: .add)
                 } label: {
                     Image(systemName: "plus")
+                }
+                
+                NavigationLink {
+                    Signup()
+                } label: {
+                    Image(systemName: "person.circle")
                 }
             }
         }
