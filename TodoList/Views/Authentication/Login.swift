@@ -1,20 +1,19 @@
 //
-//  Signup.swift
+//  Login.swift
 //  TodoList
 //
-//  Created by Ritesh Virulkar on 02/11/25.
+//  Created by Ritesh Virulkar on 03/11/25.
 //
 
-import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
+import SwiftUI
 
-struct Signup: View {
+struct Login: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var email: String = ""
     @State private var password: String = ""
-    @State private var userName: String = ""
     
     @State private var isLoading = false
     @State private var showingError = false
@@ -24,11 +23,6 @@ struct Signup: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading) {
-                    Label("Username", systemImage: "person.circle")
-                    TextField("", text: $userName)
-                        .padding()
-                        .background(Color.secondary.opacity(0.2), in: RoundedRectangle(cornerRadius: 9))
-                    
                     Label("Email", systemImage: "envelope")
                     TextField("", text: $email)
                         .padding()
@@ -44,8 +38,8 @@ struct Signup: View {
                 if isLoading {
                     ProgressView("Loading...")
                 } else {
-                    Button("Create Account") {
-                        signUp()
+                    Button("Login")  {
+                        signIn()
                     }
                 }
                 
@@ -57,36 +51,31 @@ struct Signup: View {
             }
             .padding(.top)
             .scrollBounceBehavior(.basedOnSize)
-            .navigationTitle("Signup")
+            .navigationTitle("Login")
         }
-        
     }
     
-    private func signUp() {
+    private func signIn() {
         isLoading = true
         showingError = false
-        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             isLoading = false
-            if let error = error {
-                print("Error creating user: \(error.localizedDescription)")
+            if error != nil {
                 showingError = true
-                errorMessage = error.localizedDescription
+                errorMessage = error?.localizedDescription ?? "Unknown Error"
+                print("Couldnt login")
             } else {
-                print("User created successfully!")
                 guard let user = authResult?.user else { return }
+                print(user.email ?? "no email")
                 let db = Firestore.firestore()
-                db.collection("users").document(user.uid).setData([
-                    "username": userName,
-                    "email": email,
-                    "createdAt": Date()
-                ]) { error in
-                    if let error = error {
-                        print("Error saving user data: \(error)")
-                    } else {
-                        print("User data saved successfully!")
+                db.collection("users").document(user.uid).getDocument() { (document, error) in
+                    if let document = document, document.exists {
+                        let data = document.data()
+                        let name = data?["username"] ?? "No Name"
+                        
+                        print("Welcome \(name)!!")
+                        dismiss()
                     }
-                    
-                    dismiss()
                 }
             }
         }
@@ -94,5 +83,5 @@ struct Signup: View {
 }
 
 #Preview {
-    Signup()
+    Login()
 }

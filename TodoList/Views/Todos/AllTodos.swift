@@ -122,6 +122,12 @@ struct AllTodos: View {
                 } label: {
                     Image(systemName: "person.circle")
                 }
+                
+                NavigationLink {
+                    Login()
+                } label: {
+                    Image(systemName: "person.circle.fill")
+                }
             }
         }
     }
