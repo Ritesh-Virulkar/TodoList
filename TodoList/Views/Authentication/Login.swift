@@ -10,14 +10,11 @@ import FirebaseFirestore
 import SwiftUI
 
 struct Login: View {
+    @Environment(AuthViewModel.self) var authVM
     @Environment(\.dismiss) var dismiss
     
     @State private var email: String = ""
     @State private var password: String = ""
-    
-    @State private var isLoading = false
-    @State private var showingError = false
-    @State private var errorMessage = ""
     
     var body: some View {
         NavigationStack {
@@ -35,49 +32,52 @@ struct Login: View {
                 }
                 .padding(.horizontal)
                 
-                if isLoading {
+                if authVM.isLoading {
                     ProgressView("Loading...")
                 } else {
-                    Button("Login")  {
-                        signIn()
+                    Button {
+                        authVM.signIn(withEmail: email, password: password)
+                    } label: {
+                        Text("Sign In")
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.black.opacity(0.9), in: RoundedRectangle(cornerRadius: 9))
+                            .foregroundStyle(.white)
+                            .fontWeight(.bold)
+                            .padding()
                     }
+                    .buttonStyle(.plain)
                 }
                 
-                if showingError {
-                    Text(errorMessage)
+                if authVM.showingError {
+                    Text(authVM.errorMessage)
                         .padding()
                         .foregroundStyle(Color.red)
                 }
+                
+                ZStack {
+                    Text("OR")
+                        .fontWeight(.black)
+                    Divider()
+                }
+                .foregroundStyle(Color.secondary.opacity(0.7))
+                
+                NavigationLink {
+                    Signup()
+                } label: {
+                    Text("Don't have an account? Sign up !")
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.black.opacity(0.9), in: RoundedRectangle(cornerRadius: 9))
+                        .foregroundStyle(.white)
+                        .fontWeight(.bold)
+                        .padding()
+                }
+                .buttonStyle(.plain)
             }
             .padding(.top)
             .scrollBounceBehavior(.basedOnSize)
             .navigationTitle("Login")
-        }
-    }
-    
-    private func signIn() {
-        isLoading = true
-        showingError = false
-        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-            isLoading = false
-            if error != nil {
-                showingError = true
-                errorMessage = error?.localizedDescription ?? "Unknown Error"
-                print("Couldnt login")
-            } else {
-                guard let user = authResult?.user else { return }
-                print(user.email ?? "no email")
-                let db = Firestore.firestore()
-                db.collection("users").document(user.uid).getDocument() { (document, error) in
-                    if let document = document, document.exists {
-                        let data = document.data()
-                        let name = data?["username"] ?? "No Name"
-                        
-                        print("Welcome \(name)!!")
-                        dismiss()
-                    }
-                }
-            }
         }
     }
 }

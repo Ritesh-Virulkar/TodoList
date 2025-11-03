@@ -83,7 +83,6 @@ struct AllTodos: View {
                                         withAnimation {
                                             todoVM.toggleStatus(todo.id)
                                         }
-//                                        todoVM.toggleStatus(todo.id)
                                     }
                                     .symbolEffect(.wiggle, value: todo.isCompleted)
                                 
@@ -115,18 +114,6 @@ struct AllTodos: View {
                     TodoForm(formType: .add)
                 } label: {
                     Image(systemName: "plus")
-                }
-                
-                NavigationLink {
-                    Signup()
-                } label: {
-                    Image(systemName: "person.circle")
-                }
-                
-                NavigationLink {
-                    Login()
-                } label: {
-                    Image(systemName: "person.circle.fill")
                 }
             }
         }
