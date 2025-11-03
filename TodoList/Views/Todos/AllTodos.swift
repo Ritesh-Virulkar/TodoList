@@ -10,15 +10,6 @@ import SwiftUI
 struct AllTodos: View {
     @Bindable var todoVM: TodoViewModel
     
-    #if DEBUG
-    let sampleData: [Todo] = [
-        Todo(id: UUID(), title: "task1 with more detail to see the content width ", dueDate: .now, isCompleted: false),
-        Todo(id: UUID(), title: "task2", dueDate: .now, isCompleted: true),
-        Todo(id: UUID(), title: "task3", dueDate: .distantFuture, isCompleted: false),
-        Todo(id: UUID(), title: "task4", dueDate: .distantPast, isCompleted: true)
-    ]
-    #endif
-    
     var groupedTodos: [(title: String, todos: [Todo])] {
         var pastDue = [Todo]()
         var pending = [Todo]()

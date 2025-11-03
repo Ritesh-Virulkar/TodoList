@@ -15,9 +15,23 @@ class AuthViewModel {
     var isLoading = false
     var showingError = false
     var errorMessage = ""
+    var loggedInUser: User?
+    
+    private let db = Firestore.firestore()
     
     init () {
-        isLoggedIn = Auth.auth().currentUser != nil
+        guard let currentUser =  Auth.auth().currentUser else { return }
+        isLoggedIn = true
+        db.collection("users").document(Auth.auth().currentUser!.uid).getDocument { (document, error) in
+            if let document = document, document.exists {
+                let data = document.data()
+                let id = currentUser.uid
+                let name = (data?["username"] as? String) ?? "NA"
+                let email = (data?["email"] as? String) ?? "NA"
+                let createdDate = (data?["createdAt"] as? Date) ?? Date()
+                self.loggedInUser = User(id: id, name: name, email: email, createdDate: createdDate)
+            }
+        }
     }
     
     func signUp(for username: String, with email: String, password: String) {
@@ -30,6 +44,7 @@ class AuthViewModel {
                 self.errorMessage = error.localizedDescription
             } else {
                 guard let user = authResult?.user else { return }
+                self.isLoggedIn = true
                 let db = Firestore.firestore()
                 db.collection("users").document(user.uid).setData([
                     "username": username,
