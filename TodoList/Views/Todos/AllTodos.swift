@@ -106,7 +106,7 @@ struct AllTodos: View {
                 .onMove(perform: move)
                 .onDelete(perform: remove)
             }
-            .navigationTitle("Trackify")
+            .navigationTitle("Todo List")
             .toolbar {
                 EditButton() // for re-arranging list
                 
