@@ -73,6 +73,7 @@ struct AllTodos: View {
                                     .onTapGesture {
                                         withAnimation {
                                             todoVM.toggleStatus(todo.id)
+                                            todoVM.toggleStatusOnline(todo)
                                         }
                                     }
                                     .symbolEffect(.wiggle, value: todo.isCompleted)
@@ -81,6 +82,7 @@ struct AllTodos: View {
                             .swipeActions {
                                 Button("Delete", systemImage: "trash", role: .destructive) {
                                     todoVM.remove(todo.id)
+                                    todoVM.removeOnline(todo.id)
                                 }
                                 
                                 NavigationLink {
