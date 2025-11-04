@@ -120,7 +120,7 @@ struct AllTodos: View {
     
     // TODO: check why it doesnt work
     private func remove(for offsets: IndexSet) {
-        todoVM.remove(at: offsets)
+//        todoVM.remove(at: offsets)
     }
     
     private func formattedDate(_ date: Date) -> String {

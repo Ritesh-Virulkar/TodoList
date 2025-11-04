@@ -90,6 +90,8 @@ class AuthViewModel {
                         let name = (data?["username"] as? String) ?? "NA"
                         let date = (data?["createdAt"] as? Date) ?? Date()
                         self.loggedInUser = User(id: user.uid, name: name, email: email, createdDate: date)
+                        
+//                        TodoViewModel.shared.fetchTodosOnline() 
                     }
                 }
             }

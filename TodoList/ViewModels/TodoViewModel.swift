@@ -14,15 +14,12 @@ import UserNotifications
 class TodoViewModel {
     private let db = Firestore.firestore()
     
-    static let shared = TodoViewModel()
-    
     var todos = [Todo]()
     
     // MARK: Init
     init() {
         requestNotificationAuthorization()
         scheduleDailyNotif()
-        fetchTodosOnline()
     }
     
     func fetchTodosOnline() {
@@ -46,11 +43,6 @@ class TodoViewModel {
             }
     }
     
-    func add(_ todo: Todo) {
-        todos.append(todo)
-        scheduleNotif(for: todo)
-    }
-    
     func addOnline(_ todo: Todo) {
         guard let userID = Auth.auth().currentUser?.uid, let todoID = todo.id else { return }
         
@@ -60,6 +52,8 @@ class TodoViewModel {
                 .collection("todos")
                 .document(todoID)
                 .setData(from: todo)
+            
+            scheduleNotif(for: todo)
         } catch {
             print(error.localizedDescription)
         }
@@ -72,26 +66,8 @@ class TodoViewModel {
             .collection("todos")
             .document(todoID)
             .delete()
-    }
-    
-    func remove(_ id: String) {
-        if let index = todos.firstIndex (where: { $0.id == id }) {
-            todos.remove(at: index)
-//            cancelNotification(for: id)
-        }
-    }
-    
-    func remove(at offsets: IndexSet) {
-        for _ in offsets {
-//            remove(todos[offSet].id)
-        }
-    }
-    
-    func update(with todo: Todo) {
-        if let index = todos.firstIndex (where: { $0.id == todo.id }) {
-            todos[index] = todo
-        }
-        scheduleNotif(for: todo)
+        
+        cancelNotification(for: todoID)
     }
     
     func updateOnline(with todo: Todo) {
@@ -102,6 +78,8 @@ class TodoViewModel {
                 .collection("todos")
                 .document(todoID)
                 .setData(from: todo)
+            
+            scheduleNotif(for: todo)
         } catch  {
             print(error.localizedDescription)
         }
@@ -161,7 +139,7 @@ class TodoViewModel {
     }
     
     // cancel notification
-    func cancelNotification(for todoID: UUID) {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [todoID.uuidString])
+    func cancelNotification(for todoID: String) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [todoID])
     }
 }

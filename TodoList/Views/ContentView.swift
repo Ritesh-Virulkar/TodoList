@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(AuthViewModel.self) var authVM
-    @State private var todoVM = TodoViewModel()
+    @Environment(TodoViewModel.self) var todoVM
     
     var body: some View {
         if authVM.isLoggedIn {
@@ -18,6 +18,9 @@ struct ContentView: View {
                     .tabItem {
                         Label("Todos", systemImage: "list.bullet")
                     }
+                    .onAppear {
+                        todoVM.fetchTodosOnline()
+                    }
 
                 Settings()
                     .tabItem {
@@ -25,7 +28,6 @@ struct ContentView: View {
                     }
                     
             }
-            .environment(todoVM)
         } else {
             Login()
         }
@@ -34,5 +36,4 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environment(AuthViewModel())
 }

@@ -18,6 +18,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct TodoListApp: App {
     @State private var authVM: AuthViewModel
+    @State private var todoVM: TodoViewModel
     
     // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
@@ -25,12 +26,14 @@ struct TodoListApp: App {
     init() {
         FirebaseApp.configure()
         _authVM = State(initialValue: AuthViewModel())
+        _todoVM = State(initialValue: TodoViewModel())
     }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(authVM)
+                .environment(todoVM)
         }
     }
 }
