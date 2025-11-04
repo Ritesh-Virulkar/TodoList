@@ -81,12 +81,12 @@ struct TodoForm: View {
                 } else {
                     switch _formType {
                         case .add:
-                            let newTodo = Todo(id: UUID(), title: title, dueDate: dueDate)
-                            todoVM.add(newTodo)
+                        let newTodo = Todo(id: UUID().uuidString, title: title, dueDate: dueDate)
+//                            todoVM.add(newTodo)
                             todoVM.addOnline(newTodo)
                         case .edit(let todo):
                             let todo = Todo(id: todo.id, title: title, dueDate: dueDate)
-                            todoVM.update(with: todo)
+//                            todoVM.update(with: todo)
                             todoVM.updateOnline(with: todo)
                     }
                     

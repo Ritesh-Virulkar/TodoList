@@ -13,23 +13,37 @@ import UserNotifications
 @Observable
 class TodoViewModel {
     private let db = Firestore.firestore()
-    var todos = [Todo]() {
-        didSet {
-            if let encoded = try? JSONEncoder().encode(todos) {
-                UserDefaults.standard.set(encoded, forKey: "todoListApp-todos")
-            }
-        }
-    }
+    
+    static let shared = TodoViewModel()
+    
+    var todos = [Todo]()
     
     // MARK: Init
     init() {
         requestNotificationAuthorization()
         scheduleDailyNotif()
-        if let data = UserDefaults.standard.data(forKey: "todoListApp-todos"), let decoded = try? JSONDecoder().decode([Todo].self, from: data) {
-            todos = decoded
-            return
-        }
-        todos = []
+        fetchTodosOnline()
+    }
+    
+    func fetchTodosOnline() {
+        guard let userID = Auth.auth().currentUser?.uid else { return }
+        
+        db.collection("users")
+            .document(userID)
+            .collection("todos")
+            .addSnapshotListener { snapshot, error in
+                if let error = error {
+                    print("Error fetching todos:", error.localizedDescription)
+                    return
+                }
+                guard let documents = snapshot?.documents else { return }
+                
+                DispatchQueue.main.async {
+                    self.todos = documents.compactMap { document in
+                        try? document.data(as: Todo.self)
+                    }
+                }
+            }
     }
     
     func add(_ todo: Todo) {
@@ -38,39 +52,38 @@ class TodoViewModel {
     }
     
     func addOnline(_ todo: Todo) {
-        guard let userID = Auth.auth().currentUser?.uid else { return }
+        guard let userID = Auth.auth().currentUser?.uid, let todoID = todo.id else { return }
         
         do {
             try db.collection("users")
                 .document(userID)
                 .collection("todos")
-                .document(todo.id.uuidString)
+                .document(todoID)
                 .setData(from: todo)
         } catch {
             print(error.localizedDescription)
         }
     }
     
-    func removeOnline(_ id: UUID) {
-        guard let userID = Auth.auth().currentUser?.uid else { return }
+    func removeOnline(_ todo: Todo) {
+        guard let userID = Auth.auth().currentUser?.uid, let todoID = todo.id else { return }
         db.collection("users")
             .document(userID)
             .collection("todos")
-            .document(id.uuidString)
+            .document(todoID)
             .delete()
     }
     
-    func remove(_ id: UUID) {
+    func remove(_ id: String) {
         if let index = todos.firstIndex (where: { $0.id == id }) {
             todos.remove(at: index)
-            cancelNotification(for: id)
+//            cancelNotification(for: id)
         }
     }
     
     func remove(at offsets: IndexSet) {
-        for offSet in offsets {
-            remove(todos[offSet].id)
-            removeOnline(todos[offSet].id)
+        for _ in offsets {
+//            remove(todos[offSet].id)
         }
     }
     
@@ -82,30 +95,24 @@ class TodoViewModel {
     }
     
     func updateOnline(with todo: Todo) {
-        guard let userID = Auth.auth().currentUser?.uid else { return }
+        guard let userID = Auth.auth().currentUser?.uid,  let todoID = todo.id else { return }
         do {
             try db.collection("users")
                 .document(userID)
                 .collection("todos")
-                .document(todo.id.uuidString)
+                .document(todoID)
                 .setData(from: todo)
         } catch  {
             print(error.localizedDescription)
         }
     }
     
-    func toggleStatus(_ id: UUID) {
-        if let index = todos.firstIndex (where: { $0.id == id }) {
-            todos[index].isCompleted.toggle()
-        }
-    }
-    
     func toggleStatusOnline(_ todo: Todo) {
-        guard let userID = Auth.auth().currentUser?.uid else { return }
+        guard let userID = Auth.auth().currentUser?.uid, let todoID = todo.id else { return }
         db.collection("users")
             .document(userID)
             .collection("todos")
-            .document(todo.id.uuidString)
+            .document(todoID)
             .updateData(["isCompleted": !todo.isCompleted])
     }
     
@@ -137,6 +144,7 @@ class TodoViewModel {
     
     // 1 hour before the due date
     func scheduleNotif(for todo: Todo) {
+        guard let todoID = todo.id else { return }
         let content = UNMutableNotificationContent()
         content.title = "Task Reminder"
         content.body = "Don't forget to complete: \(todo.title)"
@@ -147,8 +155,8 @@ class TodoViewModel {
             timeInterval: max(fireDate.timeIntervalSinceNow, 1),
             repeats: false
         )
-
-        let request = UNNotificationRequest(identifier: todo.id.uuidString, content: content, trigger: trigger)
+        
+        let request = UNNotificationRequest(identifier: todoID, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request)
     }
     

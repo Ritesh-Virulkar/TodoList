@@ -14,7 +14,7 @@ struct ContentView: View {
     var body: some View {
         if authVM.isLoggedIn {
             TabView {
-                AllTodos(todoVM: todoVM)
+                AllTodos()
                     .tabItem {
                         Label("Todos", systemImage: "list.bullet")
                     }

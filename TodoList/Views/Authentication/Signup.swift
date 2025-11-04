@@ -13,6 +13,8 @@ struct Signup: View {
     @Environment(AuthViewModel.self) var authVM
     @Environment(\.dismiss) var dismiss
     
+    @FocusState private var isFocused: Bool
+    
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var userName: String = ""
@@ -25,6 +27,10 @@ struct Signup: View {
                     TextField("", text: $userName)
                         .padding()
                         .background(Color.secondary.opacity(0.2), in: RoundedRectangle(cornerRadius: 9))
+                        .onAppear {
+                            isFocused = true
+                        }
+                        .focused($isFocused)
                     
                     Label("Email", systemImage: "envelope")
                     TextField("", text: $email)
@@ -32,7 +38,7 @@ struct Signup: View {
                         .background(Color.secondary.opacity(0.2), in: RoundedRectangle(cornerRadius: 9))
                     
                     Label("Password", systemImage: "key")
-                    TextField("", text: $password)
+                    SecureField("", text: $password)
                         .padding()
                         .background(Color.secondary.opacity(0.2), in: RoundedRectangle(cornerRadius: 9))
                 }

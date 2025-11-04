@@ -15,6 +15,7 @@ struct Login: View {
     
     @State private var email: String = ""
     @State private var password: String = ""
+    @FocusState private var isFocused: Bool
     
     var body: some View {
         NavigationStack {
@@ -24,9 +25,13 @@ struct Login: View {
                     TextField("", text: $email)
                         .padding()
                         .background(Color.secondary.opacity(0.2), in: RoundedRectangle(cornerRadius: 9))
+                        .onAppear {
+                            isFocused = true
+                        }
+                        .focused($isFocused)
                     
                     Label("Password", systemImage: "key")
-                    TextField("", text: $password)
+                    SecureField("", text: $password)
                         .padding()
                         .background(Color.secondary.opacity(0.2), in: RoundedRectangle(cornerRadius: 9))
                 }

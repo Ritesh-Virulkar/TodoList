@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AllTodos: View {
-    @Bindable var todoVM: TodoViewModel
+    @Environment(TodoViewModel.self) var todoVM
     
     var groupedTodos: [(title: String, todos: [Todo])] {
         var pastDue = [Todo]()
@@ -72,7 +72,6 @@ struct AllTodos: View {
                                 Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
                                     .onTapGesture {
                                         withAnimation {
-                                            todoVM.toggleStatus(todo.id)
                                             todoVM.toggleStatusOnline(todo)
                                         }
                                     }
@@ -81,8 +80,7 @@ struct AllTodos: View {
                             }
                             .swipeActions {
                                 Button("Delete", systemImage: "trash", role: .destructive) {
-                                    todoVM.remove(todo.id)
-                                    todoVM.removeOnline(todo.id)
+                                    todoVM.removeOnline(todo)
                                 }
                                 
                                 NavigationLink {
@@ -134,5 +132,6 @@ struct AllTodos: View {
 }
 
 #Preview {
-    AllTodos(todoVM: TodoViewModel())
+    AllTodos()
+        .environment(TodoViewModel())
 }
